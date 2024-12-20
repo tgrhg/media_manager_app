@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:media_manager_app/models/media.dart';
+import 'package:media_manager_app/services/rakuten_api.dart';
 
 import 'dart:async';
 import 'package:path/path.dart';
@@ -142,6 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         page = MyMediaPage();
         break;
+      case 2:
+        page = SearchPage();
+        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -161,6 +165,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
                     label: Text('My Media'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.search),
+                    label: Text('Search'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -303,6 +311,91 @@ AddedDate: ${v.addedAt.toLocal().toIso8601String()}
 '''),
             ))
       ],
+    );
+  }
+}
+
+class SearchPage extends StatefulWidget {
+  @override
+  State<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  // 検索入力フィールドのコントローラー
+  final _searchController = TextEditingController();
+
+  List<dynamic> _searchResults = [];
+
+  bool _isLoading = false;
+
+  /// 楽天APIを使って検索を実行する関数.
+  /// 検索中は _isLoading に true を設定する
+  /// 検索結果を _searchResults に格納する
+  void _performSearch() async {
+    // 検索開始時にローディング状態をtrueに設定
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // 楽天APIを呼び出して検索結果を取得
+      final results = await RakutenAPI.searchItems(_searchController.text);
+      // 検索結果を状態に反映
+      setState(() {
+        _searchResults = results;
+      });
+    } catch (e) {
+      // エラーが発生した場合にエラーメッセージを出力
+      print('Error: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Search DVDs/Blu-rays'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // 検索入力フィールド
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: _performSearch,
+                ),
+              ),
+            ),
+            // ローディング中はプログレスインジケーターを表示
+            if (_isLoading)
+              Center(child: CircularProgressIndicator())
+            else
+              // ローディング中以外は検索結果を表示
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    final item = _searchResults[index];
+                    return ListTile(
+                      title: Text(item['title']), //< 作品タイトル
+                      subtitle: Text(item['salesDate']), //< 販売日
+                      leading: Image.network(item['mediumImageUrl']), //< 商品画像
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
