@@ -44,11 +44,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          COMMENTS=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq '.reviews[].id')
-          for ID in $COMMENTS; do
-            BODY=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews[] | select(.id==\"$ID\") | .body")
+          REVIEWS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            repos/$REPO/pulls/${{ github.event.number }}/reviews --jq '.[].id')
+          for ID in $REVIEWS; do
+            BODY=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              repos/$REPO/pulls/${{ github.event.number }}/reviews/$ID reviews --jq '.body')
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
-              gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID/dismissals
+              gh api \
+                --method DELETE \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID
             fi
           done
 
