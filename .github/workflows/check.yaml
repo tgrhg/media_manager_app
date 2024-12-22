@@ -48,7 +48,7 @@ jobs:
           for ID in $COMMENTS; do
             BODY=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq ".comments[] | select(.id==$ID) | .body")
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
-              gh pr review dismiss --id $ID
+              gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID/dismissals
             fi
           done
 
@@ -77,5 +77,5 @@ jobs:
             echo '```' >> comment.md
 
             # PRにコメントを投稿
-            gh pr review ${{ github.event.pull_request.number }} --body-file comment.md
+            gh pr review ${{ github.event.pull_request.number }} --body-file comment.md --comment
           fi
