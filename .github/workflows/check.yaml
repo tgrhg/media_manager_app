@@ -46,7 +46,7 @@ jobs:
         run: |
           COMMENTS=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq '.reviews[].id')
           for ID in $COMMENTS; do
-            BODY=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews[] | select(.id==$ID) | .body")
+            BODY=$(gh pr view ${{ github.event.pull_request.number }} --json reviews --jq ".reviews[] | select(.id==\"$ID\") | .body")
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
               gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID/dismissals
             fi
