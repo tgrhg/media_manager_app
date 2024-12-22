@@ -48,6 +48,7 @@ jobs:
           for ID in $COMMENTS; do
             BODY=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq ".comments[] | select(.id==$ID) | .body")
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
+              echo "found!"
               gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID/dismissals
             fi
           done
