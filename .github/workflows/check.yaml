@@ -47,18 +47,18 @@ jobs:
           REVIEWS=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews --jq '.[].id')
+            repos/${{ github.event.repository.name }}/pulls/${{ github.event.number }}/reviews --jq '.[].id')
           for ID in $REVIEWS; do
             BODY=$(gh api \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID reviews --jq '.body')
+              repos/${{ github.event.repository.name }}/pulls/${{ github.event.number }}/reviews/$ID reviews --jq '.body')
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
               gh api \
                 --method DELETE \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID
+                repos/${{ github.event.repository.name }}/pulls/${{ github.event.number }}/reviews/$ID
             fi
           done
 
@@ -76,7 +76,7 @@ jobs:
             echo '```' >> comment.md
 
             # PRにコメントを投稿
-            gh pr review ${{ github.event.pull_request.number }} --body-file comment.md --request-changes
+            gh pr review ${{ github.event.number }} --body-file comment.md --request-changes
 
             # CIを失敗させる
             exit 1
@@ -87,5 +87,5 @@ jobs:
             echo '```' >> comment.md
 
             # PRにコメントを投稿
-            gh pr review ${{ github.event.pull_request.number }} --body-file comment.md --comment
+            gh pr review ${{ github.event.number }} --body-file comment.md --comment
           fi
