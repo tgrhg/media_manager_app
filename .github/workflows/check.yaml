@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  # Lint失敗時にコメントを残すための権限を追加
   pull-requests: write
 
 jobs:
