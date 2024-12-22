@@ -1,0 +1,40 @@
+name: Check Process
+
+on:
+  # main ブランチ への Pull Request を対象にする
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Run Flutter Lints
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Flutter SDKをセットアップ
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # 必要なパッケージをインストール
+      - name: Install dependencies
+        run: flutter pub get
+
+      # flutter analyze を実行
+      - name: Run Flutter Analyze
+        run: flutter analyze
+
+      # 問題があれば失敗するように設定
+      - name: Verify Lint Issues
+        run: |
+          if [ -n "$(flutter analyze)" ]; then
+            echo "Lint issues found."
+            exit 1
+          fi
