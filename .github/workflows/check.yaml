@@ -52,7 +52,7 @@ jobs:
             BODY=$(gh api \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              repos/${{ github.repository }}/issues/${{ github.event.number }}/comments/$ID --jq '.body')
+              repos/${{ github.repository }}/issues/comments/$ID --jq '.body')
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
               gh api \
                 --method DELETE \
