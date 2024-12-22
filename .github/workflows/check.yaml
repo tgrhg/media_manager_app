@@ -48,7 +48,7 @@ jobs:
           for ID in $COMMENTS; do
             BODY=$(gh pr view ${{ github.event.pull_request.number }} --json comments --jq ".comments[] | select(.id==$ID) | .body")
             if [[ $BODY == *"${{ env.LINT_COMMENT_HEADER }}"* ]]; then
-              gh pr review delete $ID
+              gh pr review dismiss --id $ID
             fi
           done
 
@@ -73,7 +73,7 @@ jobs:
           else
             echo "${{ env.LINT_COMMENT_HEADER }}" > comment.md
             echo '```' >> comment.md
-            cat 'No issues found!' >> comment.md
+            echo 'No issues found!' >> comment.md
             echo '```' >> comment.md
 
             # PRにコメントを投稿
