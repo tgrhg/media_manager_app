@@ -6,6 +6,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   lint:
     name: Run Flutter Lints
@@ -38,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # issueがあるか確認
-          if grep -qE 'info|error|warning' lint-report.txt; then
+          # issueがあるか確認(error,warning,info全て検出)
+          if grep -qE 'error|warning|info' lint-report.txt; then
             # 結果を整形してコメント用に保存
             echo "### Flutter Lint Results" > comment.md
             echo '```' >> comment.md
