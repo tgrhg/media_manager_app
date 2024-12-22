@@ -32,16 +32,23 @@ jobs:
         run: |
           flutter analyze --no-pub > lint-report.txt || true
 
-      # GitHubアノテーション用にlint結果を出力
-      - name: Annotate Lint Issues
+      # Lintエラーがある場合にPRコメントを投稿
+      - name: Post Lint Results to PR
+        if: always() # 常に実行（lintのエラーがあっても実行するため）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          while IFS= read -r line; do
-            if [[ $line =~ ^([^:]+):([0-9]+):([0-9]+):[[:space:]]+(error|warning):[[:space:]]+(.*)$ ]]; then
-              FILE=${BASH_REMATCH[1]}
-              LINE=${BASH_REMATCH[2]}
-              COLUMN=${BASH_REMATCH[3]}
-              LEVEL=${BASH_REMATCH[4]}
-              MESSAGE=${BASH_REMATCH[5]}
-              echo "::${LEVEL} file=$FILE,line=$LINE,col=$COLUMN::${MESSAGE}"
-            fi
-          done < lint-report.txt
+          # エラーがあるか確認
+          if grep -qE 'error|warning' lint-report.txt; then
+            # 結果を整形してコメント用に保存
+            echo "### Flutter Lint Results" > comment.md
+            echo '```' >> comment.md
+            cat lint-report.txt >> comment.md
+            echo '```' >> comment.md
+
+            # PRにコメントを投稿
+            gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+
+            # CIを失敗させる
+            exit 1
+          fi
