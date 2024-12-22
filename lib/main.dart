@@ -29,7 +29,7 @@ void main() async {
     version: 1,
   );
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 // media テーブルに insert する
@@ -140,13 +140,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = const GeneratorPage();
+        page = GeneratorPage();
         break;
       case 1:
-        page = const MyMediaPage();
+        page = MyMediaPage();
         break;
       case 2:
-        page = const SearchPage();
+        page = SearchPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -222,7 +222,7 @@ class GeneratorPage extends StatelessWidget {
                   insertMedia(media);
                   appState.refetchMyMedia();
                 },
-                child: const Text('Insert Flutterの冒険'),
+                child: Text('Insert Flutterの冒険'),
               ),
               IconButton(
                 onPressed: () {
@@ -230,11 +230,11 @@ class GeneratorPage extends StatelessWidget {
                   deleteMedia(0);
                   appState.refetchMyMedia();
                 },
-                icon: const Icon(Icons.delete),
+                icon: Icon(Icons.delete),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -251,7 +251,7 @@ class GeneratorPage extends StatelessWidget {
                   insertMedia(media);
                   appState.refetchMyMedia();
                 },
-                child: const Text('Insert Flutterの冒険2'),
+                child: Text('Insert Flutterの冒険2'),
               ),
               IconButton(
                 onPressed: () {
@@ -259,11 +259,11 @@ class GeneratorPage extends StatelessWidget {
                   deleteMedia(1);
                   appState.refetchMyMedia();
                 },
-                icon: const Icon(Icons.delete),
+                icon: Icon(Icons.delete),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               // updateするデータ
@@ -278,7 +278,7 @@ class GeneratorPage extends StatelessWidget {
               updateMedia(media);
               appState.refetchMyMedia();
             },
-            child: const Text('Update Flutterの冒険2 title'),
+            child: Text('Update Flutterの冒険2 title'),
           ),
         ],
       ),
@@ -287,14 +287,12 @@ class GeneratorPage extends StatelessWidget {
 }
 
 class MyMediaPage extends StatelessWidget {
-  const MyMediaPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
     if (appState.mediaList.isEmpty) {
-      return const Center(
+      return Center(
         child: Text('No MyMedia yet.'),
       );
     }
@@ -307,7 +305,7 @@ class MyMediaPage extends StatelessWidget {
               '${appState.mediaList.length} mediaList:'),
         ),
         ...appState.mediaList.map((v) => ListTile(
-              leading: const Icon(Icons.favorite),
+              leading: Icon(Icons.favorite),
               title: Text(v.title),
               subtitle: Text('''
 ID: ${v.id}
@@ -322,8 +320,6 @@ AddedDate: ${v.addedAt.toLocal().toIso8601String()}
 }
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
-
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
@@ -333,7 +329,6 @@ class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
 
   List<dynamic> _searchResults = [];
-  bool _searchError = false;
 
   bool _isLoading = false;
 
@@ -346,8 +341,6 @@ class _SearchPageState extends State<SearchPage> {
       _isLoading = true;
     });
 
-    _searchError = false;
-
     try {
       // 楽天APIを呼び出して検索結果を取得
       final results = await RakutenAPI.searchItems(_searchController.text);
@@ -357,8 +350,7 @@ class _SearchPageState extends State<SearchPage> {
       });
     } catch (e) {
       // エラーが発生した場合にエラーメッセージを出力
-      _searchResults = [];
-      _searchError = true;
+      print('Error: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -370,7 +362,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search DVDs/Blu-rays'),
+        title: Text('Search DVDs/Blu-rays'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -382,16 +374,14 @@ class _SearchPageState extends State<SearchPage> {
               decoration: InputDecoration(
                 labelText: 'Search',
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.search),
+                  icon: Icon(Icons.search),
                   onPressed: _performSearch,
                 ),
               ),
             ),
             // ローディング中はプログレスインジケーターを表示
             if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (_searchError)
-              const Text("エラーが発生しました")
+              Center(child: CircularProgressIndicator())
             else
               // ローディング中以外は検索結果を表示
               Expanded(
