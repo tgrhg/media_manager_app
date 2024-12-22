@@ -70,4 +70,12 @@ jobs:
 
             # CIを失敗させる
             exit 1
+          else
+            echo "${{ env.LINT_COMMENT_HEADER }}" > comment.md
+            echo '```' >> comment.md
+            cat 'No issues found!' >> comment.md
+            echo '```' >> comment.md
+
+            # PRにコメントを投稿
+            gh pr review ${{ github.event.pull_request.number }} --body-file comment.md
           fi

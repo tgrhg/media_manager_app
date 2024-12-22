@@ -29,7 +29,7 @@ void main() async {
     version: 1,
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 // media テーブルに insert する
@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
@@ -140,13 +140,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = const GeneratorPage();
         break;
       case 1:
-        page = MyMediaPage();
+        page = const MyMediaPage();
         break;
       case 2:
-        page = SearchPage();
+        page = const SearchPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
-                destinations: [
+                destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
@@ -195,6 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -220,7 +222,7 @@ class GeneratorPage extends StatelessWidget {
                   insertMedia(media);
                   appState.refetchMyMedia();
                 },
-                child: Text('Insert Flutterの冒険'),
+                child: const Text('Insert Flutterの冒険'),
               ),
               IconButton(
                 onPressed: () {
@@ -228,11 +230,11 @@ class GeneratorPage extends StatelessWidget {
                   deleteMedia(0);
                   appState.refetchMyMedia();
                 },
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -249,7 +251,7 @@ class GeneratorPage extends StatelessWidget {
                   insertMedia(media);
                   appState.refetchMyMedia();
                 },
-                child: Text('Insert Flutterの冒険2'),
+                child: const Text('Insert Flutterの冒険2'),
               ),
               IconButton(
                 onPressed: () {
@@ -257,11 +259,11 @@ class GeneratorPage extends StatelessWidget {
                   deleteMedia(1);
                   appState.refetchMyMedia();
                 },
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               // updateするデータ
@@ -276,7 +278,7 @@ class GeneratorPage extends StatelessWidget {
               updateMedia(media);
               appState.refetchMyMedia();
             },
-            child: Text('Update Flutterの冒険2 title'),
+            child: const Text('Update Flutterの冒険2 title'),
           ),
         ],
       ),
@@ -285,12 +287,14 @@ class GeneratorPage extends StatelessWidget {
 }
 
 class MyMediaPage extends StatelessWidget {
+  const MyMediaPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
     if (appState.mediaList.isEmpty) {
-      return Center(
+      return const Center(
         child: Text('No MyMedia yet.'),
       );
     }
@@ -303,7 +307,7 @@ class MyMediaPage extends StatelessWidget {
               '${appState.mediaList.length} mediaList:'),
         ),
         ...appState.mediaList.map((v) => ListTile(
-              leading: Icon(Icons.favorite),
+              leading: const Icon(Icons.favorite),
               title: Text(v.title),
               subtitle: Text('''
 ID: ${v.id}
@@ -318,6 +322,8 @@ AddedDate: ${v.addedAt.toLocal().toIso8601String()}
 }
 
 class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
@@ -327,6 +333,7 @@ class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
 
   List<dynamic> _searchResults = [];
+  bool _searchError = false;
 
   bool _isLoading = false;
 
@@ -339,6 +346,8 @@ class _SearchPageState extends State<SearchPage> {
       _isLoading = true;
     });
 
+    _searchError = false;
+
     try {
       // 楽天APIを呼び出して検索結果を取得
       final results = await RakutenAPI.searchItems(_searchController.text);
@@ -348,7 +357,8 @@ class _SearchPageState extends State<SearchPage> {
       });
     } catch (e) {
       // エラーが発生した場合にエラーメッセージを出力
-      print('Error: $e');
+      _searchResults = [];
+      _searchError = true;
     } finally {
       setState(() {
         _isLoading = false;
@@ -360,7 +370,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search DVDs/Blu-rays'),
+        title: const Text('Search DVDs/Blu-rays'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -372,14 +382,16 @@ class _SearchPageState extends State<SearchPage> {
               decoration: InputDecoration(
                 labelText: 'Search',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
+                  icon: const Icon(Icons.search),
                   onPressed: _performSearch,
                 ),
               ),
             ),
             // ローディング中はプログレスインジケーターを表示
             if (_isLoading)
-              Center(child: CircularProgressIndicator())
+              const Center(child: CircularProgressIndicator())
+            else if (_searchError)
+              const Text("エラーが発生しました")
             else
               // ローディング中以外は検索結果を表示
               Expanded(
