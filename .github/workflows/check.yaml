@@ -51,6 +51,7 @@ jobs:
               echo "found!"
               gh api repos/${{ github.event.repo.name }}/pulls/${{ github.event.number }}/reviews/$ID/dismissals
             fi
+            echo "body = $BODY"
           done
 
       # Lintエラーがある場合にPRコメントを投稿
