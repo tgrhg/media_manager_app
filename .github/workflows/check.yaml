@@ -38,8 +38,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # エラーがあるか確認
-          if grep -qE 'error|warning' lint-report.txt; then
+          # issueがあるか確認
+          if grep -qE 'info|error|warning' lint-report.txt; then
             # 結果を整形してコメント用に保存
             echo "### Flutter Lint Results" > comment.md
             echo '```' >> comment.md
