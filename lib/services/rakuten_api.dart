@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class RakutenAPI {
-  static const String apiKey = '[API Key]'; // 取得したAPIキーをここに入れる
+  static const String apiKey = String.fromEnvironment('RAKUTEN_API_KEY');
   static const String endpoint =
       'https://app.rakuten.co.jp/services/api/BooksDVD/Search/20170404';
 
